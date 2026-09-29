@@ -1,6 +1,6 @@
-# [Project name]
+# Foco OS
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Painel pessoal de produtividade que organiza o dia, a semana, sessões Pomodoro e métricas usando o Trello como fonte oficial das tarefas.
 
 ## Run & Operate
 
@@ -22,23 +22,32 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/foco-os/` — interface React/Vite e páginas do produto
+- `artifacts/api-server/src/routes/` — API do app, rotas de automação e documentação HTML
+- `artifacts/api-server/src/lib/trello.ts` — acesso ao Trello, modo demo e cache de 60 segundos
+- `artifacts/api-server/src/lib/foco-data.ts` — agregações, sessões e configurações
+- `lib/api-spec/openapi.yaml` — contrato OpenAPI usado para gerar os clientes e validadores
+- `lib/db/src/schema/` — sessões Pomodoro e configurações persistidas
+- `README.md` — configuração, Secrets e endpoints do Make.com
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- As tarefas pertencem ao Trello e não são copiadas para PostgreSQL; o banco guarda apenas sessões Pomodoro e preferências.
+- `POS_API_KEY` protege os endpoints de automação. Ela não é necessária no modo demo, mas a API externa fica desativada até ser configurada.
+- Sem credenciais completas de Trello, o backend retorna dados fictícios identificados como modo demonstração.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Hoje, Matriz de Eisenhower com triagem, Semana, timer Pomodoro com vínculo a cards, Métricas com exportação CSV e Configurações. A interface é em português e permite tema claro ou escuro.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+Toda a interface deve permanecer em português do Brasil. Tarefas e etiquetas do Trello são a fonte oficial; não as persistir no PostgreSQL.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Configure credenciais apenas em Secrets; nunca exponha `TRELLO_API_KEY`, `TRELLO_TOKEN` ou `POS_API_KEY` no frontend ou nos logs.
+- Reexecute o codegen depois de qualquer alteração em `lib/api-spec/openapi.yaml`.
 
 ## Pointers
 

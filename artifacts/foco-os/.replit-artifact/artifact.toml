@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Foco OS"
+description = "Painel pessoal de produtividade em português, com matriz Eisenhower, planejamento semanal, Pomodoro e métricas. Conecta-se ao Trello quando configurado e inclui modo demonstração."
+version = "1.0.0"
+id = "artifacts/foco-os"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23099
+
+[services.development]
+run = "pnpm --filter @workspace/foco-os run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/foco-os", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/foco-os/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23099"
+BASE_PATH = "/"

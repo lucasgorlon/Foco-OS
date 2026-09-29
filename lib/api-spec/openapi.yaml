@@ -3,34 +3,654 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: API do Foco OS e endpoints protegidos para automações.
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: foco
+    description: Dados do painel Foco OS
+  - name: automations
+    description: Endpoints seguros para automações externas
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
-      summary: Health check
-      description: Returns server health status
+      summary: Health check interno
+      description: Retorna status básico do servidor.
       responses:
         "200":
-          description: Healthy
+          description: Servidor ativo
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /health:
+    get:
+      operationId: getAutomationHealth
+      tags: [automations]
+      summary: Status da aplicação e do Trello
+      security:
+        - ApiKeyAuth: []
+      responses:
+        "200":
+          description: Status da aplicação
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectionStatus"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /connection:
+    get:
+      operationId: getConnection
+      tags: [foco]
+      summary: Estado da conexão com Trello
+      responses:
+        "200":
+          description: Conexão ativa ou modo demonstração
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectionStatus"
+  /cards:
+    get:
+      operationId: getCards
+      tags: [foco]
+      summary: Lista os cards do quadro
+      parameters:
+        - name: includeCompleted
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: quadrant
+          in: query
+          schema:
+            type: string
+            enum: ["Entrada", "Q1 - Fazer agora", "Q2 - Agendar", "Q3 - Delegar", "Q4 - Eliminar", "Concluído"]
+      responses:
+        "200":
+          description: Cards encontrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaskCard"
+  /cards/{cardId}/move:
+    post:
+      operationId: moveCard
+      tags: [foco]
+      summary: Move um card entre listas do quadro
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CardMoveInput"
+      responses:
+        "200":
+          description: Card atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskCard"
+        "404":
+          description: Card não encontrado
+  /dashboard/daily:
+    get:
+      operationId: getDailySummary
+      tags: [foco]
+      summary: Resumo da página Hoje
+      responses:
+        "200":
+          description: Prioridades, atrasos e carga do dia
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailySummary"
+  /dashboard/weekly:
+    get:
+      operationId: getWeeklySummary
+      tags: [foco]
+      summary: Dados da semana selecionada
+      parameters:
+        - name: weekOffset
+          in: query
+          description: Deslocamento em semanas em relação à semana atual.
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Cards agrupados por dia e sem data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklySummary"
+  /metrics:
+    get:
+      operationId: getMetrics
+      tags: [foco]
+      summary: Métricas e séries temporais
+      parameters:
+        - name: range
+          in: query
+          schema:
+            type: string
+            enum: ["7d", "30d", "custom"]
+            default: "7d"
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Indicadores e séries do período
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricsSummary"
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [foco]
+      summary: Lê as configurações do usuário
+      responses:
+        "200":
+          description: Configurações atuais
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppSettings"
+    patch:
+      operationId: updateSettings
+      tags: [foco]
+      summary: Atualiza as configurações do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsUpdate"
+      responses:
+        "200":
+          description: Configurações atualizadas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppSettings"
+  /pomodoro/sessions:
+    get:
+      operationId: getPomodoroSessions
+      tags: [foco]
+      summary: Lista sessões de foco
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Sessões armazenadas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PomodoroSession"
+    post:
+      operationId: createPomodoroSession
+      tags: [foco]
+      summary: Registra um ciclo de foco concluído pelo app
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PomodoroInput"
+      responses:
+        "201":
+          description: Sessão registrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PomodoroSession"
+  /resumo-diario:
+    get:
+      operationId: getAutomationDailySummary
+      tags: [automations]
+      summary: Resumo diário para Make.com
+      security:
+        - ApiKeyAuth: []
+      responses:
+        "200":
+          description: Prioridades, atrasadas, entrada, Pomodoros e carga
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationDailySummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /resumo-semanal:
+    get:
+      operationId: getAutomationWeeklySummary
+      tags: [automations]
+      summary: Resumo semanal para Make.com
+      security:
+        - ApiKeyAuth: []
+      responses:
+        "200":
+          description: Conclusões, foco, quadrantes, etiquetas e próxima semana
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AutomationWeeklySummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /pomodoro:
+    post:
+      operationId: createExternalPomodoro
+      tags: [automations]
+      summary: Registra uma sessão de Pomodoro externa
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PomodoroInput"
+      responses:
+        "201":
+          description: Sessão registrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PomodoroSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  responses:
+    Unauthorized:
+      description: Chave de API ausente ou inválida
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
   schemas:
     HealthStatus:
       type: object
       properties:
         status:
           type: string
-      required:
-        - status
-
+      required: [status]
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    Label:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+      required: [name, color]
+    TaskCard:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        listName:
+          type: string
+        due:
+          type: ["string", "null"]
+          format: date-time
+        labels:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+        url:
+          type: string
+          format: uri
+        completedAt:
+          type: ["string", "null"]
+          format: date-time
+        isCommitment:
+          type: boolean
+      required: [id, title, description, listName, due, labels, url, completedAt, isCommitment]
+    CardMoveInput:
+      type: object
+      properties:
+        listName:
+          type: string
+          enum: ["Entrada", "Q1 - Fazer agora", "Q2 - Agendar", "Q3 - Delegar", "Q4 - Eliminar", "Concluído"]
+      required: [listName]
+    WorkloadStatus:
+      type: object
+      properties:
+        level:
+          type: string
+          enum: [green, yellow, red]
+        q1Count:
+          type: integer
+        overdueCount:
+          type: integer
+        pomodorosCount:
+          type: integer
+        message:
+          type: ["string", "null"]
+      required: [level, q1Count, overdueCount, pomodorosCount, message]
+    DailySummary:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        priorities:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskCard"
+        overdue:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskCard"
+        inboxCount:
+          type: integer
+        pomodorosToday:
+          type: integer
+        completedToday:
+          type: integer
+        workload:
+          $ref: "#/components/schemas/WorkloadStatus"
+      required: [date, priorities, overdue, inboxCount, pomodorosToday, completedToday, workload]
+    WeeklyDay:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        cards:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskCard"
+      required: [date, cards]
+    WeeklySummary:
+      type: object
+      properties:
+        weekStart:
+          type: string
+          format: date
+        weekEnd:
+          type: string
+          format: date
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/WeeklyDay"
+        withoutDate:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskCard"
+      required: [weekStart, weekEnd, days, withoutDate]
+    DailyCount:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        count:
+          type: integer
+      required: [date, count]
+    FocusDay:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        pomodoros:
+          type: integer
+        focusHours:
+          type: number
+      required: [date, pomodoros, focusHours]
+    QuadrantCount:
+      type: object
+      properties:
+        quadrant:
+          type: string
+        count:
+          type: integer
+      required: [quadrant, count]
+    AreaFocus:
+      type: object
+      properties:
+        area:
+          type: string
+        focusHours:
+          type: number
+      required: [area, focusHours]
+    MetricsSummary:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        completionRate:
+          type: number
+        averageDailyFocusHours:
+          type: number
+        q2Percentage:
+          type: number
+        overdueCount:
+          type: integer
+        completedByDay:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyCount"
+        focusByDay:
+          type: array
+          items:
+            $ref: "#/components/schemas/FocusDay"
+        openByQuadrant:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuadrantCount"
+        focusByArea:
+          type: array
+          items:
+            $ref: "#/components/schemas/AreaFocus"
+      required: [from, to, completionRate, averageDailyFocusHours, q2Percentage, overdueCount, completedByDay, focusByDay, openByQuadrant, focusByArea]
+    AppSettings:
+      type: object
+      properties:
+        focusMinutes:
+          type: integer
+        shortBreakMinutes:
+          type: integer
+        longBreakMinutes:
+          type: integer
+        longBreakEvery:
+          type: integer
+        dailyPomodoroLimit:
+          type: integer
+        yellowLoadAt:
+          type: integer
+        redLoadAt:
+          type: integer
+        theme:
+          type: string
+          enum: [dark, light]
+        connection:
+          $ref: "#/components/schemas/ConnectionStatus"
+      required: [focusMinutes, shortBreakMinutes, longBreakMinutes, longBreakEvery, dailyPomodoroLimit, yellowLoadAt, redLoadAt, theme, connection]
+    SettingsUpdate:
+      type: object
+      properties:
+        focusMinutes:
+          type: integer
+          minimum: 1
+          maximum: 120
+        shortBreakMinutes:
+          type: integer
+          minimum: 1
+          maximum: 60
+        longBreakMinutes:
+          type: integer
+          minimum: 1
+          maximum: 90
+        longBreakEvery:
+          type: integer
+          minimum: 2
+          maximum: 8
+        dailyPomodoroLimit:
+          type: integer
+          minimum: 1
+          maximum: 40
+        yellowLoadAt:
+          type: integer
+          minimum: 1
+          maximum: 30
+        redLoadAt:
+          type: integer
+          minimum: 2
+          maximum: 40
+        theme:
+          type: string
+          enum: [dark, light]
+    ConnectionStatus:
+      type: object
+      properties:
+        connected:
+          type: boolean
+        mode:
+          type: string
+          enum: [trello, demo]
+        message:
+          type: string
+      required: [connected, mode, message]
+    PomodoroInput:
+      type: object
+      properties:
+        cardId:
+          type: ["string", "null"]
+        durationMinutes:
+          type: integer
+          minimum: 1
+          maximum: 240
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+      required: [durationMinutes, startedAt]
+    PomodoroSession:
+      type: object
+      properties:
+        id:
+          type: string
+        cardId:
+          type: ["string", "null"]
+        cardTitle:
+          type: ["string", "null"]
+        durationMinutes:
+          type: integer
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: ["string", "null"]
+          format: date-time
+      required: [id, cardId, cardTitle, durationMinutes, startedAt, endedAt]
+    LabelCount:
+      type: object
+      properties:
+        label:
+          type: string
+        count:
+          type: integer
+      required: [label, count]
+    AutomationDailySummary:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        priorities:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskCard"
+        overdue:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskCard"
+        inboxCount:
+          type: integer
+        pomodorosYesterday:
+          type: integer
+        completedYesterday:
+          type: integer
+        workload:
+          $ref: "#/components/schemas/WorkloadStatus"
+      required: [date, priorities, overdue, inboxCount, pomodorosYesterday, completedYesterday, workload]
+    AutomationWeeklySummary:
+      type: object
+      properties:
+        completedThisWeek:
+          type: integer
+        focusHours:
+          type: number
+        byQuadrant:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuadrantCount"
+        byLabel:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabelCount"
+        nextWeekCards:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskCard"
+      required: [completedThisWeek, focusHours, byQuadrant, byLabel, nextWeekCards]
