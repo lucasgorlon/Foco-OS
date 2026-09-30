@@ -1,0 +1,1196 @@
+{
+    "name": "Telegram > IA > Trello",
+    "flow": [
+        {
+            "id": 1,
+            "module": "telegram:WatchUpdates",
+            "version": 1,
+            "parameters": {
+                "__IMTHOOK__": 2874117
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 0
+                },
+                "setupValidation": {
+                    "result": {
+                        "valid": true,
+                        "fields": []
+                    },
+                    "version": 1,
+                    "configuration": "5d4308c85de76674"
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTHOOK__": {
+                            "data": {
+                                "editable": "false"
+                            },
+                            "label": "8428383817:AAFozk2GIPYk-qTKPgILBptQzgwSVZy-EL8"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTHOOK__",
+                        "type": "hook:telegramapi",
+                        "label": "Webhook",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 2,
+            "module": "gemini-ai:createACompletionGeminiPro",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 6525931
+            },
+            "mapper": {
+                "model": "gemini-3.6-flash",
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                                "text": "{{1.message.text}}",
+                                "type": "text"
+                            }
+                        ]
+                    }
+                ],
+                "generationConfig": {
+                    "imageConfig": {},
+                    "thinkingConfig": {}
+                },
+                "system_instruction": {
+                    "parts": [
+                        {
+                            "text": "Você é o assistente de triagem do meu Sistema Operacional Pessoal, que organiza tarefas pela Matriz de Eisenhower.\r\n\r\nData e hora atual: {{formatDate(now; \"dddd, YYYY-MM-DD HH:mm\"; \"America/Campo_Grande\")}} (fuso UTC-04:00).\r\n\r\nRecebo uma mensagem curta descrevendo uma tarefa. Transforme-a em um card do Trello seguindo estas regras:\r\n\r\n1. TÍTULO: comece com um verbo no infinitivo, no máximo 60 caracteres, sem data no título.\r\n2. QUADRANTE:\r\n   - Q1 (importante e urgente): prazo em até 48 horas, ou problemas que exigem ação imediata.\r\n   - Q2 (importante, não urgente): contribui para objetivos de trabalho, faculdade, saúde ou finanças, com prazo maior que 48 horas ou sem prazo.\r\n   - Q3 (urgente, não importante): demandas de terceiros com prazo curto que poderiam ser delegadas ou resolvidas rapidamente.\r\n   - Q4 (nem urgente nem importante): distrações ou itens de baixo valor.\r\n   - ENTRADA: se a mensagem for ambígua demais para classificar com segurança.\r\n3. ETIQUETA: escolha uma entre Trabalho, Faculdade, Pessoal, Saúde.\r\n4. VENCIMENTO: interprete datas relativas (\"amanhã\", \"sexta\", \"semana que vem\") a partir da data atual. Se houver só a data, use 18:00. Formato: YYYY-MM-DDTHH:mm:ss-04:00. Se não houver prazo, use null.\r\n5. DESCRIÇÃO: uma ou duas frases com detalhes úteis presentes na mensagem. Não invente informações.\r\n6. JUSTIFICATIVA: uma frase curta explicando o quadrante escolhido.\r\n\r\nResponda APENAS com um JSON válido, sem texto antes ou depois e sem blocos de código, neste formato:\r\n{\"titulo\": \"\", \"descricao\": \"\", \"quadrante\": \"Q1\", \"etiqueta\": \"Trabalho\", \"vencimento\": null, \"justificativa\": \"\"}\r\n\r\nMensagem: {{1.message.text}}"
+                        }
+                    ]
+                }
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 0
+                },
+                "setupValidation": {
+                    "result": {
+                        "valid": true,
+                        "fields": []
+                    },
+                    "version": 1,
+                    "configuration": "eb9c609c1de73c26"
+                },
+                "restore": {
+                    "expect": {
+                        "model": {
+                            "mode": "chose",
+                            "label": "Gemini 3.6 Flash"
+                        },
+                        "contents": {
+                            "mode": "chose",
+                            "items": [
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "User"
+                                    },
+                                    "parts": {
+                                        "mode": "chose",
+                                        "items": [
+                                            {
+                                                "type": {
+                                                    "mode": "chose",
+                                                    "label": "Text"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        "serviceTier": {
+                            "mode": "chose",
+                            "label": "Empty"
+                        },
+                        "url_context": {
+                            "mode": "chose"
+                        },
+                        "code_execution": {
+                            "mode": "chose"
+                        },
+                        "safetySettings": {
+                            "mode": "chose"
+                        },
+                        "generationConfig": {
+                            "nested": {
+                                "imageConfig": {
+                                    "nested": {
+                                        "imageSize": {
+                                            "mode": "chose",
+                                            "label": "Empty"
+                                        }
+                                    }
+                                },
+                                "stopSequences": {
+                                    "mode": "chose"
+                                },
+                                "thinkingConfig": {
+                                    "nested": {
+                                        "thinking_level": {
+                                            "mode": "chose",
+                                            "label": "Empty"
+                                        },
+                                        "include_thoughts": {
+                                            "mode": "chose"
+                                        }
+                                    }
+                                },
+                                "mediaResolution": {
+                                    "mode": "chose",
+                                    "label": "Empty"
+                                },
+                                "responseMimeType": {
+                                    "mode": "chose",
+                                    "label": "Empty"
+                                },
+                                "responseModalities": {
+                                    "mode": "chose"
+                                }
+                            }
+                        },
+                        "system_instruction": {
+                            "nested": {
+                                "parts": {
+                                    "mode": "chose",
+                                    "items": [
+                                        null
+                                    ]
+                                }
+                            }
+                        },
+                        "google_maps_context": {
+                            "mode": "chose"
+                        },
+                        "google_search_context": {
+                            "mode": "chose"
+                        },
+                        "file_search_store_context": {
+                            "mode": "chose"
+                        },
+                        "function_declarations_context": {
+                            "mode": "chose"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "gemini-ai-q9zyjp"
+                            },
+                            "label": "Lucas"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:gemini-ai-q9zyjp",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "model",
+                        "type": "select",
+                        "label": "AI Model",
+                        "required": true
+                    },
+                    {
+                        "name": "contents",
+                        "spec": [
+                            {
+                                "name": "role",
+                                "type": "select",
+                                "label": "Role",
+                                "options": [
+                                    {
+                                        "label": "User",
+                                        "value": "user"
+                                    },
+                                    {
+                                        "label": "Model",
+                                        "value": "model"
+                                    }
+                                ],
+                                "required": true
+                            },
+                            {
+                                "name": "parts",
+                                "spec": [
+                                    {
+                                        "name": "type",
+                                        "type": "select",
+                                        "label": "Message Type",
+                                        "options": [
+                                            {
+                                                "label": "Text",
+                                                "value": "text",
+                                                "nested": [
+                                                    {
+                                                        "name": "text",
+                                                        "type": "text",
+                                                        "label": "Text",
+                                                        "required": true
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "label": "File",
+                                                "value": "file",
+                                                "nested": [
+                                                    {
+                                                        "name": "file_data",
+                                                        "spec": [
+                                                            {
+                                                                "name": "mime_type",
+                                                                "type": "text",
+                                                                "label": "Mime Type",
+                                                                "required": true
+                                                            },
+                                                            {
+                                                                "help": "You can use public or signed URLs as input by using the URLs.",
+                                                                "name": "file_uri",
+                                                                "type": "text",
+                                                                "label": "File URI",
+                                                                "required": true
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "File Data",
+                                                        "required": true
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "label": "Function Call",
+                                                "value": "functionCall",
+                                                "nested": [
+                                                    {
+                                                        "name": "functionCall",
+                                                        "spec": [
+                                                            {
+                                                                "help": "The name of the function to call.",
+                                                                "name": "name",
+                                                                "type": "text",
+                                                                "label": "Name",
+                                                                "required": true,
+                                                                "validate": {
+                                                                    "max": 64
+                                                                }
+                                                            },
+                                                            {
+                                                                "help": "The function parameters and values in JSON object format.",
+                                                                "name": "args",
+                                                                "type": "json",
+                                                                "label": "Arguments"
+                                                            },
+                                                            {
+                                                                "help": "The unique ID of the function call.",
+                                                                "name": "id",
+                                                                "type": "text",
+                                                                "label": "Function Call ID"
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Function Call"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "label": "Function Response",
+                                                "value": "functionResponse",
+                                                "nested": [
+                                                    {
+                                                        "name": "functionResponse",
+                                                        "spec": [
+                                                            {
+                                                                "help": "The name of the function to call.",
+                                                                "name": "name",
+                                                                "type": "text",
+                                                                "label": "Name",
+                                                                "required": true,
+                                                                "validate": {
+                                                                    "max": 64
+                                                                }
+                                                            },
+                                                            {
+                                                                "help": "The function response in JSON object format.",
+                                                                "name": "response",
+                                                                "type": "json",
+                                                                "label": "Response",
+                                                                "required": true
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "Function Response"
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "thoughtSignature",
+                                        "type": "text",
+                                        "label": "Thought Signature"
+                                    }
+                                ],
+                                "type": "array",
+                                "label": "Parts",
+                                "required": true
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Messages",
+                        "required": true
+                    },
+                    {
+                        "name": "system_instruction",
+                        "spec": [
+                            {
+                                "name": "parts",
+                                "spec": {
+                                    "name": "value",
+                                    "spec": [
+                                        {
+                                            "name": "text",
+                                            "type": "text",
+                                            "label": "Value"
+                                        }
+                                    ],
+                                    "type": "collection",
+                                    "label": "Prompt"
+                                },
+                                "type": "array",
+                                "label": "Prompts"
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "System Instructions"
+                    },
+                    {
+                        "name": "safetySettings",
+                        "spec": [
+                            {
+                                "name": "category",
+                                "type": "select",
+                                "label": "Category",
+                                "options": [
+                                    {
+                                        "label": "Harassment content",
+                                        "value": "HARM_CATEGORY_HARASSMENT"
+                                    },
+                                    {
+                                        "label": "Hate speech and content",
+                                        "value": "HARM_CATEGORY_HATE_SPEECH"
+                                    },
+                                    {
+                                        "label": "Sexually explicit content.",
+                                        "value": "HARM_CATEGORY_SEXUALLY_EXPLICIT"
+                                    },
+                                    {
+                                        "label": "Dangerous content:",
+                                        "value": "HARM_CATEGORY_DANGEROUS_CONTENT"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "threshold",
+                                "type": "select",
+                                "label": "Threshold",
+                                "options": [
+                                    {
+                                        "label": "Block low and above.",
+                                        "value": "BLOCK_LOW_AND_ABOVE"
+                                    },
+                                    {
+                                        "label": "Block medium and above.",
+                                        "value": "BLOCK_MEDIUM_AND_ABOVE"
+                                    },
+                                    {
+                                        "label": "Block only high.",
+                                        "value": "BLOCK_ONLY_HIGH"
+                                    },
+                                    {
+                                        "label": "Block none.",
+                                        "value": "BLOCK_NONE"
+                                    }
+                                ]
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Safety Settings"
+                    },
+                    {
+                        "name": "generationConfig",
+                        "spec": [
+                            {
+                                "name": "stopSequences",
+                                "spec": {
+                                    "name": "value",
+                                    "type": "text",
+                                    "label": "Stop Sequence"
+                                },
+                                "type": "array",
+                                "label": "Stop Sequences"
+                            },
+                            {
+                                "name": "responseModalities",
+                                "type": "select",
+                                "label": "Response Modalities",
+                                "multiple": true,
+                                "validate": {
+                                    "enum": [
+                                        "text",
+                                        "image"
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "maxOutputTokens",
+                                "type": "number",
+                                "label": "Max Output Tokens"
+                            },
+                            {
+                                "name": "temperature",
+                                "type": "number",
+                                "label": "Temperature",
+                                "validate": {
+                                    "max": 1,
+                                    "min": 0
+                                }
+                            },
+                            {
+                                "name": "topP",
+                                "type": "number",
+                                "label": "Top P",
+                                "validate": {
+                                    "max": 1,
+                                    "min": 0
+                                }
+                            },
+                            {
+                                "name": "topK",
+                                "type": "number",
+                                "label": "Top K"
+                            },
+                            {
+                                "name": "thinkingConfig",
+                                "spec": [
+                                    {
+                                        "name": "thinkingBudget",
+                                        "type": "number",
+                                        "label": "Thinking Budget"
+                                    },
+                                    {
+                                        "name": "include_thoughts",
+                                        "type": "boolean",
+                                        "label": "Include Thoughts"
+                                    },
+                                    {
+                                        "name": "thinking_level",
+                                        "type": "select",
+                                        "label": "Thinking Level",
+                                        "validate": {
+                                            "enum": [
+                                                "low",
+                                                "high"
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "type": "collection",
+                                "label": "Thinking Config"
+                            },
+                            {
+                                "name": "mediaResolution",
+                                "type": "select",
+                                "label": "Media Resolution",
+                                "validate": {
+                                    "enum": [
+                                        "media_resolution_low",
+                                        "media_resolution_medium",
+                                        "media_resolution_high"
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "imageConfig",
+                                "spec": [
+                                    {
+                                        "name": "imageSize",
+                                        "type": "select",
+                                        "label": "Image Size",
+                                        "validate": {
+                                            "enum": [
+                                                "1K",
+                                                "2K",
+                                                "4K"
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "type": "collection",
+                                "label": "Image Configuration"
+                            },
+                            {
+                                "name": "responseMimeType",
+                                "type": "select",
+                                "label": "Response Format"
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Generation configurations"
+                    },
+                    {
+                        "name": "tools",
+                        "type": "any",
+                        "label": "Tools"
+                    },
+                    {
+                        "name": "tool_config",
+                        "type": "any",
+                        "label": "Tool Config"
+                    },
+                    {
+                        "name": "function_declarations_context",
+                        "type": "boolean",
+                        "label": "Function Declarations Grounding"
+                    },
+                    {
+                        "name": "url_context",
+                        "type": "boolean",
+                        "label": "URL Context"
+                    },
+                    {
+                        "name": "google_search_context",
+                        "type": "boolean",
+                        "label": "Google Search Grounding"
+                    },
+                    {
+                        "name": "code_execution",
+                        "type": "boolean",
+                        "label": "Code Execution"
+                    },
+                    {
+                        "name": "google_maps_context",
+                        "type": "boolean",
+                        "label": "Google Maps Grounding"
+                    },
+                    {
+                        "name": "file_search_store_context",
+                        "type": "boolean",
+                        "label": "File Search Store Context"
+                    },
+                    {
+                        "name": "serviceTier",
+                        "type": "select",
+                        "label": "Inference Service Tier"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 3,
+            "module": "json:ParseJSON",
+            "version": 1,
+            "parameters": {
+                "type": 516099
+            },
+            "mapper": {
+                "json": "{{2.result}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 0
+                },
+                "setupValidation": {
+                    "result": {
+                        "valid": true,
+                        "fields": []
+                    },
+                    "version": 1,
+                    "configuration": "b46c84aa7278a938"
+                },
+                "restore": {
+                    "parameters": {
+                        "type": {
+                            "label": "My data structure"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "type",
+                        "type": "udt",
+                        "label": "Data structure"
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "json",
+                        "type": "text",
+                        "label": "JSON string",
+                        "required": true
+                    }
+                ],
+                "interface": [
+                    {
+                        "help": "",
+                        "name": "titulo",
+                        "type": "text",
+                        "label": "Titulo"
+                    },
+                    {
+                        "help": "",
+                        "name": "descricao",
+                        "type": "text",
+                        "label": "Descricao"
+                    },
+                    {
+                        "help": "",
+                        "name": "quadrante",
+                        "type": "text",
+                        "label": "Quadrante"
+                    },
+                    {
+                        "help": "",
+                        "name": "etiqueta",
+                        "type": "text",
+                        "label": "Etiqueta"
+                    },
+                    {
+                        "help": "",
+                        "name": "vencimento",
+                        "type": "text",
+                        "label": "Vencimento"
+                    },
+                    {
+                        "help": "",
+                        "name": "justificativa",
+                        "type": "text",
+                        "label": "Justificativa"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 6,
+            "module": "util:SetVariables",
+            "version": 1,
+            "parameters": {},
+            "filter": null,
+            "mapper": {
+                "scope": "roundtrip",
+                "variables": [
+                    {
+                        "name": "list_q1",
+                        "value": "6ab573d43ac1b5cc916c554d"
+                    },
+                    {
+                        "name": "list_q2",
+                        "value": "6ab573dcbaadee679f016246"
+                    },
+                    {
+                        "name": "list_q3",
+                        "value": "6ab573e2abe2c767e7775fbb"
+                    },
+                    {
+                        "name": "list_q4",
+                        "value": "6ab573ea14cbcd84dd674ac3"
+                    },
+                    {
+                        "name": "list_Entrada",
+                        "value": "6ab573ca98089c75fcd2b54d"
+                    },
+                    {
+                        "name": "etiqueta_TRABALHO",
+                        "value": "6ab573c009838dd36b629f09"
+                    },
+                    {
+                        "name": "etiqueta_PESSOAL",
+                        "value": "6ab573c009838dd36b629f0b"
+                    },
+                    {
+                        "name": "etiqueta_SAÚDE",
+                        "value": "6ab573c009838dd36b629f0c"
+                    },
+                    {
+                        "name": "etiqueta_FACULDADE",
+                        "value": "6ab573c009838dd36b629f0a"
+                    }
+                ]
+            },
+            "metadata": {
+                "designer": {
+                    "x": 900,
+                    "y": 0
+                },
+                "setupValidation": {
+                    "result": {
+                        "valid": true,
+                        "fields": []
+                    },
+                    "version": 1,
+                    "configuration": "199684648baa679"
+                },
+                "restore": {
+                    "expect": {
+                        "scope": {
+                            "label": "One cycle"
+                        },
+                        "variables": {
+                            "items": [
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                            ]
+                        }
+                    }
+                },
+                "expect": [
+                    {
+                        "name": "variables",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "name",
+                                    "type": "text",
+                                    "label": "Variable name",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "any",
+                                    "label": "Variable value"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Variable"
+                        },
+                        "type": "array",
+                        "label": "Variables",
+                        "validate": {
+                            "unique": {
+                                "by": "name"
+                            },
+                            "minItems": 1
+                        }
+                    },
+                    {
+                        "name": "scope",
+                        "type": "select",
+                        "label": "Variable lifetime",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "roundtrip",
+                                "execution"
+                            ]
+                        }
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "list_q1",
+                        "type": "any",
+                        "label": "list_q1"
+                    },
+                    {
+                        "name": "list_q2",
+                        "type": "any",
+                        "label": "list_q2"
+                    },
+                    {
+                        "name": "list_q3",
+                        "type": "any",
+                        "label": "list_q3"
+                    },
+                    {
+                        "name": "list_q4",
+                        "type": "any",
+                        "label": "list_q4"
+                    },
+                    {
+                        "name": "list_Entrada",
+                        "type": "any",
+                        "label": "list_Entrada"
+                    },
+                    {
+                        "name": "etiqueta_TRABALHO",
+                        "type": "any",
+                        "label": "etiqueta_TRABALHO"
+                    },
+                    {
+                        "name": "etiqueta_PESSOAL",
+                        "type": "any",
+                        "label": "etiqueta_PESSOAL"
+                    },
+                    {
+                        "name": "etiqueta_SAÚDE",
+                        "type": "any",
+                        "label": "etiqueta_SAÚDE"
+                    },
+                    {
+                        "name": "etiqueta_FACULDADE",
+                        "type": "any",
+                        "label": "etiqueta_FACULDADE"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 4,
+            "module": "trello:createCard",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": 7001937
+            },
+            "mapper": {
+                "list_id_select_or_manual": "manual",
+                "name": "{{3.titulo}}",
+                "description": "{{3.descricao}}",
+                "due_date": "{{3.vencimento}}",
+                "dueComplete": false,
+                "list_id": "{{switch(3.quadrante; \"Q1\"; 6.list_q1; \"Q2\"; 6.list_q2; \"Q3\"; 6.list_q3; \"Q4\"; 6.list_q4; 6.list_Entrada)}}",
+                "labels_id": "{{add(emptyarray; switch(3.etiqueta; \"Trabalho\"; 6.etiqueta_TRABALHO; \"Pessoal\"; 6.etiqueta_PESSOAL; \"Saúde\"; 6.`etiqueta_SAÚDE`; \"Faculdade\"; 6.etiqueta_FACULDADE; ))}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1200,
+                    "y": 0
+                },
+                "setupValidation": {
+                    "version": 1,
+                    "configuration": "e153293c98f370a6",
+                    "result": {
+                        "valid": true,
+                        "fields": []
+                    }
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Trello connection (lucassgorlon)",
+                            "data": {
+                                "scoped": "true",
+                                "connection": "trello"
+                            }
+                        }
+                    },
+                    "expect": {
+                        "list_id_select_or_manual": {
+                            "label": "Enter manually"
+                        },
+                        "position": {
+                            "mode": "chose",
+                            "label": "Empty"
+                        },
+                        "dueComplete": {
+                            "mode": "chose"
+                        },
+                        "filename": {
+                            "collapsed": true
+                        },
+                        "filedata": {
+                            "collapsed": true
+                        },
+                        "select_or_manual_cardID": {
+                            "label": "Empty"
+                        },
+                        "labels_id": {
+                            "mode": "edit"
+                        },
+                        "members_id": {
+                            "mode": "chose",
+                            "collapsed": true
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:trello",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "list_id_select_or_manual",
+                        "type": "select",
+                        "label": "Enter a List ID",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "manual",
+                                "select"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "type": "text",
+                        "label": "Name"
+                    },
+                    {
+                        "name": "description",
+                        "type": "text",
+                        "label": "Description"
+                    },
+                    {
+                        "name": "position",
+                        "type": "select",
+                        "label": "Position",
+                        "validate": {
+                            "enum": [
+                                "top",
+                                "bottom"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "start",
+                        "type": "date",
+                        "label": "Start date",
+                        "time": false
+                    },
+                    {
+                        "name": "due_date",
+                        "type": "date",
+                        "label": "Due date",
+                        "time": true
+                    },
+                    {
+                        "name": "dueComplete",
+                        "type": "boolean",
+                        "label": "Due complete",
+                        "required": true
+                    },
+                    {
+                        "name": "urlSource",
+                        "type": "url",
+                        "label": "File URL"
+                    },
+                    {
+                        "name": "filename",
+                        "type": "text",
+                        "label": "File name"
+                    },
+                    {
+                        "name": "filedata",
+                        "type": "buffer",
+                        "label": "File data"
+                    },
+                    {
+                        "name": "select_or_manual_cardID",
+                        "type": "select",
+                        "label": "Copy card",
+                        "validate": {
+                            "enum": [
+                                "manually",
+                                "select"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "list_id",
+                        "type": "text",
+                        "label": "List ID",
+                        "required": true
+                    },
+                    {
+                        "name": "labels_id",
+                        "type": "array",
+                        "label": "Labels",
+                        "spec": {
+                            "type": "text",
+                            "label": "Label ID",
+                            "name": "value"
+                        }
+                    },
+                    {
+                        "name": "members_id",
+                        "type": "array",
+                        "label": "Members",
+                        "spec": {
+                            "type": "text",
+                            "label": "Member ID",
+                            "name": "value"
+                        }
+                    }
+                ],
+                "advanced": true
+            }
+        },
+        {
+            "id": 5,
+            "module": "telegram:SendReplyMessage",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 11403544
+            },
+            "mapper": {
+                "text": "✅ Card criado\r\n📌 {{3.titulo}}\r\n🗂 {{3.quadrante}} · {{3.etiqueta}}\r\n📅 {{ifempty(formatDate(3.vencimento; \"DD/MM/YYYY  HH:mm\"; \"America/Campo_Grande\"); \"sem +prazo\")}}\r\n💡 {{3.justificativa}}",
+                "chatId": "{{1.message.chat.id}}",
+                "parseMode": "",
+                "replyMarkup": "",
+                "messageThreadId": "",
+                "replyToMessageId": "",
+                "replyMarkupAssembleType": "reply_markup_enter"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1500,
+                    "y": 0
+                },
+                "setupValidation": {
+                    "result": {
+                        "valid": true,
+                        "fields": []
+                    },
+                    "version": 1,
+                    "configuration": "dc5d12ba160182e2"
+                },
+                "restore": {
+                    "expect": {
+                        "parseMode": {
+                            "label": "Empty"
+                        },
+                        "disableNotification": {
+                            "mode": "chose"
+                        },
+                        "replyMarkupAssembleType": {
+                            "label": "Enter the Reply Markup"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "telegram"
+                            },
+                            "label": "Lucas's Telegram Bot connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:telegram",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "chatId",
+                        "type": "text",
+                        "label": "Chat ID",
+                        "required": true
+                    },
+                    {
+                        "name": "text",
+                        "type": "text",
+                        "label": "Text",
+                        "required": true
+                    },
+                    {
+                        "name": "messageThreadId",
+                        "type": "number",
+                        "label": "Message Thread ID"
+                    },
+                    {
+                        "name": "parseMode",
+                        "type": "select",
+                        "label": "Parse Mode",
+                        "validate": {
+                            "enum": [
+                                "Markdown",
+                                "HTML"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "disableNotification",
+                        "type": "boolean",
+                        "label": "Disable Notifications"
+                    },
+                    {
+                        "name": "disableWebPagePreview",
+                        "type": "boolean",
+                        "label": "Disable Link Previews"
+                    },
+                    {
+                        "name": "replyToMessageId",
+                        "type": "number",
+                        "label": "Original Message ID"
+                    },
+                    {
+                        "name": "replyMarkupAssembleType",
+                        "type": "select",
+                        "label": "Enter/Assemble the Reply Markup Field",
+                        "validate": {
+                            "enum": [
+                                "reply_markup_enter",
+                                "reply_markup_assemble"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "replyMarkup",
+                        "type": "text",
+                        "label": "Reply Markup"
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": true,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "us2.make.com",
+        "notes": []
+    }
+}
