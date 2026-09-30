@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
+import PasswordGate, { LogoutButton } from '@/components/password-gate';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import {
@@ -184,6 +185,7 @@ function AppShell({ children, collapsed, setCollapsed, theme, onToggleTheme }: {
         <button data-testid="button-collapse-sidebar" onClick={() => setCollapsed(!collapsed)} className="pressable mt-1 flex w-full items-center gap-3 rounded-[10px] px-3 py-3 text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" aria-label="Recolher navegação">
           {collapsed ? <PanelLeftOpen className="h-[18px] w-[18px]" /> : <PanelLeftClose className="h-[18px] w-[18px]" />}<span className={cn('nav-label', collapsed && 'w-0 opacity-0')}>Recolher menu</span>
         </button>
+        <LogoutButton collapsed={collapsed} className="mt-1" />
       </div>
     </aside>
     <main className="min-w-0 flex-1 pb-20 md:pb-0">{children}</main>
@@ -353,6 +355,13 @@ function SettingsPage({ onThemeChange }: { onThemeChange: (theme: 'dark' | 'ligh
       <section className="foco-card p-5 sm:p-7"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><div className="flex items-center gap-2"><h2 className="text-lg font-bold">Conexão</h2><span className={cn('h-2 w-2 rounded-full', connection.data?.connected ? 'bg-emerald-500' : 'bg-amber-500')} /></div><p className="mt-1 text-sm text-muted-foreground">{connection.data?.message || settings.data?.connection.message || 'Verificando conexão...'}</p></div><div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-semibold"><Link2 className="h-4 w-4 text-primary" />{connection.data?.mode === 'demo' ? 'Modo demo' : 'Trello'}</div></div></section>
       <div className="flex items-center justify-end gap-3"><span className={cn('text-xs text-emerald-600', update.isSuccess ? 'opacity-100' : 'opacity-0')}>Preferências salvas</span><button data-testid="button-save-settings" onClick={save} disabled={update.isPending} className="pressable rounded-lg bg-primary px-5 py-3 text-sm font-bold text-primary-foreground disabled:opacity-60">{update.isPending ? 'Salvando...' : 'Salvar preferências'}</button></div>
     </div>}
+    <section className="foco-card flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center sm:p-7">
+      <div>
+        <h2 className="font-bold">Sessão protegida</h2>
+        <p className="mt-1 text-sm text-muted-foreground">O acesso permanece ativo por até 7 dias neste navegador.</p>
+      </div>
+      <LogoutButton className="w-full sm:w-auto" />
+    </section>
   </div>;
 }
 
@@ -373,7 +382,7 @@ function App() {
   const [theme, setThemeState] = useState<'dark' | 'light'>(() => (localStorage.getItem('foco-theme') as 'dark' | 'light' | null) ?? 'dark');
   const setTheme = (next: 'dark' | 'light') => { setThemeState(next); localStorage.setItem('foco-theme', next); };
   useEffect(() => { document.documentElement.classList.toggle('dark', theme === 'dark'); }, [theme]);
-  return <QueryClientProvider client={queryClient}><CampoGrandeTodayProvider><TooltipProvider><ErrorBoundary><Router theme={theme} setTheme={setTheme} /></ErrorBoundary><Toaster /></TooltipProvider></CampoGrandeTodayProvider></QueryClientProvider>;
+  return <QueryClientProvider client={queryClient}><CampoGrandeTodayProvider><TooltipProvider><ErrorBoundary><PasswordGate><Router theme={theme} setTheme={setTheme} /><Toaster /></PasswordGate></ErrorBoundary></TooltipProvider></CampoGrandeTodayProvider></QueryClientProvider>;
 }
 
 export default App;

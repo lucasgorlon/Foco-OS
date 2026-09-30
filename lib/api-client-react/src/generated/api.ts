@@ -20,7 +20,9 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AppPasswordInput,
   AppSettings,
+  AuthenticatedSession,
   AutomationDailySummary,
   AutomationWeeklySummary,
   CardMoveInput,
@@ -34,6 +36,7 @@ import type {
   MetricsSummary,
   PomodoroInput,
   PomodoroSession,
+  ServiceUnavailableResponse,
   SettingsUpdate,
   TaskCard,
   UnauthorizedResponse,
@@ -66,6 +69,245 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetAppSessionUrl = () => {
+
+
+
+
+  return `/api/auth/session`
+}
+
+/**
+ * @summary Verifica a sessão do Foco OS
+ */
+export const getAppSession = async ( options?: Parameters<typeof customFetch>[1]): Promise<AuthenticatedSession> => {
+
+  return customFetch<AuthenticatedSession>(getGetAppSessionUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAppSessionQueryKey = () => {
+    return [
+    `/api/auth/session`
+    ] as const;
+    }
+
+
+export const getGetAppSessionQueryOptions = <TData = Awaited<ReturnType<typeof getAppSession>>, TError = ErrorType<UnauthorizedResponse | ServiceUnavailableResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAppSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAppSessionQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAppSession>>> = ({ signal }) => getAppSession({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAppSession>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAppSessionQueryResult = NonNullable<Awaited<ReturnType<typeof getAppSession>>>
+export type GetAppSessionQueryError = ErrorType<UnauthorizedResponse | ServiceUnavailableResponse>
+
+
+/**
+ * @summary Verifica a sessão do Foco OS
+ */
+
+export function useGetAppSession<TData = Awaited<ReturnType<typeof getAppSession>>, TError = ErrorType<UnauthorizedResponse | ServiceUnavailableResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAppSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAppSessionQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getLoginWithPasswordUrl = () => {
+
+
+
+
+  return `/api/auth/login`
+}
+
+/**
+ * @summary Inicia uma sessão com a senha do aplicativo
+ */
+export const loginWithPassword = async (appPasswordInput: AppPasswordInput, options?: Parameters<typeof customFetch>[1]): Promise<AuthenticatedSession> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AuthenticatedSession>(getLoginWithPasswordUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(appPasswordInput)
+  }
+);}
+
+
+
+
+
+export const getLoginWithPasswordMutationKey = () => ['loginWithPassword'] as const;
+
+export const getLoginWithPasswordMutationOptions = <TError = ErrorType<UnauthorizedResponse | ServiceUnavailableResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loginWithPassword>>, TError,LoginWithPasswordMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof loginWithPassword>>, TError,LoginWithPasswordMutationVariables, TContext> => {
+
+const mutationKey = getLoginWithPasswordMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof loginWithPassword>>, LoginWithPasswordMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  loginWithPassword(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LoginWithPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof loginWithPassword>>>
+    export type LoginWithPasswordMutationBody = BodyType<AppPasswordInput>
+    export type LoginWithPasswordMutationError = ErrorType<UnauthorizedResponse | ServiceUnavailableResponse>
+    export type LoginWithPasswordMutationVariables = {data: BodyType<AppPasswordInput>}
+
+    /**
+ * @summary Inicia uma sessão com a senha do aplicativo
+ */
+export const useLoginWithPassword = <TError = ErrorType<UnauthorizedResponse | ServiceUnavailableResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loginWithPassword>>, TError,LoginWithPasswordMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof loginWithPassword>>,
+        TError,
+        LoginWithPasswordMutationVariables,
+        TContext
+      > => {
+      return useMutation(getLoginWithPasswordMutationOptions(options));
+    }
+
+export const getLogoutAppSessionUrl = () => {
+
+
+
+
+  return `/api/auth/logout`
+}
+
+/**
+ * @summary Encerra a sessão atual
+ */
+export const logoutAppSession = async ( options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getLogoutAppSessionUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getLogoutAppSessionMutationKey = () => ['logoutAppSession'] as const;
+
+export const getLogoutAppSessionMutationOptions = <TError = ErrorType<UnauthorizedResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logoutAppSession>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof logoutAppSession>>, TError,void, TContext> => {
+
+const mutationKey = getLogoutAppSessionMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof logoutAppSession>>, void> = () => {
+
+
+          return  logoutAppSession(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LogoutAppSessionMutationResult = NonNullable<Awaited<ReturnType<typeof logoutAppSession>>>
+
+    export type LogoutAppSessionMutationError = ErrorType<UnauthorizedResponse>
+
+
+    /**
+ * @summary Encerra a sessão atual
+ */
+export const useLogoutAppSession = <TError = ErrorType<UnauthorizedResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logoutAppSession>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof logoutAppSession>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getLogoutAppSessionMutationOptions(options));
+    }
 
 export const getHealthCheckUrl = () => {
 
@@ -255,7 +497,7 @@ export const getGetConnectionQueryKey = () => {
     }
 
 
-export const getGetConnectionQueryOptions = <TData = Awaited<ReturnType<typeof getConnection>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getConnection>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetConnectionQueryOptions = <TData = Awaited<ReturnType<typeof getConnection>>, TError = ErrorType<UnauthorizedResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getConnection>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -274,14 +516,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetConnectionQueryResult = NonNullable<Awaited<ReturnType<typeof getConnection>>>
-export type GetConnectionQueryError = ErrorType<unknown>
+export type GetConnectionQueryError = ErrorType<UnauthorizedResponse>
 
 
 /**
  * @summary Estado da conexão com Trello
  */
 
-export function useGetConnection<TData = Awaited<ReturnType<typeof getConnection>>, TError = ErrorType<unknown>>(
+export function useGetConnection<TData = Awaited<ReturnType<typeof getConnection>>, TError = ErrorType<UnauthorizedResponse>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getConnection>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -339,7 +581,7 @@ export const getGetCardsQueryKey = (params?: GetCardsParams,) => {
     }
 
 
-export const getGetCardsQueryOptions = <TData = Awaited<ReturnType<typeof getCards>>, TError = ErrorType<unknown>>(params?: GetCardsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCards>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetCardsQueryOptions = <TData = Awaited<ReturnType<typeof getCards>>, TError = ErrorType<UnauthorizedResponse>>(params?: GetCardsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCards>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -358,14 +600,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetCardsQueryResult = NonNullable<Awaited<ReturnType<typeof getCards>>>
-export type GetCardsQueryError = ErrorType<unknown>
+export type GetCardsQueryError = ErrorType<UnauthorizedResponse>
 
 
 /**
  * @summary Lista os cards do quadro
  */
 
-export function useGetCards<TData = Awaited<ReturnType<typeof getCards>>, TError = ErrorType<unknown>>(
+export function useGetCards<TData = Awaited<ReturnType<typeof getCards>>, TError = ErrorType<UnauthorizedResponse>>(
  params?: GetCardsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCards>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -426,7 +668,7 @@ return customFetch<TaskCard>(getMoveCardUrl(cardId),
 
 export const getMoveCardMutationKey = () => ['moveCard'] as const;
 
-export const getMoveCardMutationOptions = <TError = ErrorType<void>,
+export const getMoveCardMutationOptions = <TError = ErrorType<UnauthorizedResponse | void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moveCard>>, TError,MoveCardMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof moveCard>>, TError,MoveCardMutationVariables, TContext> => {
 
@@ -455,13 +697,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type MoveCardMutationResult = NonNullable<Awaited<ReturnType<typeof moveCard>>>
     export type MoveCardMutationBody = BodyType<CardMoveInput>
-    export type MoveCardMutationError = ErrorType<void>
+    export type MoveCardMutationError = ErrorType<UnauthorizedResponse | void>
     export type MoveCardMutationVariables = {cardId: string;data: BodyType<CardMoveInput>}
 
     /**
  * @summary Move um card entre listas do quadro
  */
-export const useMoveCard = <TError = ErrorType<void>,
+export const useMoveCard = <TError = ErrorType<UnauthorizedResponse | void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moveCard>>, TError,MoveCardMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof moveCard>>,
@@ -505,7 +747,7 @@ export const getGetDailySummaryQueryKey = () => {
     }
 
 
-export const getGetDailySummaryQueryOptions = <TData = Awaited<ReturnType<typeof getDailySummary>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDailySummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetDailySummaryQueryOptions = <TData = Awaited<ReturnType<typeof getDailySummary>>, TError = ErrorType<UnauthorizedResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDailySummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -524,14 +766,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetDailySummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getDailySummary>>>
-export type GetDailySummaryQueryError = ErrorType<unknown>
+export type GetDailySummaryQueryError = ErrorType<UnauthorizedResponse>
 
 
 /**
  * @summary Resumo da página Hoje
  */
 
-export function useGetDailySummary<TData = Awaited<ReturnType<typeof getDailySummary>>, TError = ErrorType<unknown>>(
+export function useGetDailySummary<TData = Awaited<ReturnType<typeof getDailySummary>>, TError = ErrorType<UnauthorizedResponse>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDailySummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -589,7 +831,7 @@ export const getGetWeeklySummaryQueryKey = (params?: GetWeeklySummaryParams,) =>
     }
 
 
-export const getGetWeeklySummaryQueryOptions = <TData = Awaited<ReturnType<typeof getWeeklySummary>>, TError = ErrorType<unknown>>(params?: GetWeeklySummaryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWeeklySummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetWeeklySummaryQueryOptions = <TData = Awaited<ReturnType<typeof getWeeklySummary>>, TError = ErrorType<UnauthorizedResponse>>(params?: GetWeeklySummaryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWeeklySummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -608,14 +850,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetWeeklySummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getWeeklySummary>>>
-export type GetWeeklySummaryQueryError = ErrorType<unknown>
+export type GetWeeklySummaryQueryError = ErrorType<UnauthorizedResponse>
 
 
 /**
  * @summary Dados da semana selecionada
  */
 
-export function useGetWeeklySummary<TData = Awaited<ReturnType<typeof getWeeklySummary>>, TError = ErrorType<unknown>>(
+export function useGetWeeklySummary<TData = Awaited<ReturnType<typeof getWeeklySummary>>, TError = ErrorType<UnauthorizedResponse>>(
  params?: GetWeeklySummaryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWeeklySummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -673,7 +915,7 @@ export const getGetMetricsQueryKey = (params?: GetMetricsParams,) => {
     }
 
 
-export const getGetMetricsQueryOptions = <TData = Awaited<ReturnType<typeof getMetrics>>, TError = ErrorType<unknown>>(params?: GetMetricsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMetrics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetMetricsQueryOptions = <TData = Awaited<ReturnType<typeof getMetrics>>, TError = ErrorType<UnauthorizedResponse>>(params?: GetMetricsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMetrics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -692,14 +934,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetMetricsQueryResult = NonNullable<Awaited<ReturnType<typeof getMetrics>>>
-export type GetMetricsQueryError = ErrorType<unknown>
+export type GetMetricsQueryError = ErrorType<UnauthorizedResponse>
 
 
 /**
  * @summary Métricas e séries temporais
  */
 
-export function useGetMetrics<TData = Awaited<ReturnType<typeof getMetrics>>, TError = ErrorType<unknown>>(
+export function useGetMetrics<TData = Awaited<ReturnType<typeof getMetrics>>, TError = ErrorType<UnauthorizedResponse>>(
  params?: GetMetricsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMetrics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -750,7 +992,7 @@ export const getGetSettingsQueryKey = () => {
     }
 
 
-export const getGetSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getSettings>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getSettings>>, TError = ErrorType<UnauthorizedResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -769,14 +1011,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getSettings>>>
-export type GetSettingsQueryError = ErrorType<unknown>
+export type GetSettingsQueryError = ErrorType<UnauthorizedResponse>
 
 
 /**
  * @summary Lê as configurações do usuário
  */
 
-export function useGetSettings<TData = Awaited<ReturnType<typeof getSettings>>, TError = ErrorType<unknown>>(
+export function useGetSettings<TData = Awaited<ReturnType<typeof getSettings>>, TError = ErrorType<UnauthorizedResponse>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -836,7 +1078,7 @@ return customFetch<AppSettings>(getUpdateSettingsUrl(),
 
 export const getUpdateSettingsMutationKey = () => ['updateSettings'] as const;
 
-export const getUpdateSettingsMutationOptions = <TError = ErrorType<unknown>,
+export const getUpdateSettingsMutationOptions = <TError = ErrorType<UnauthorizedResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSettings>>, TError,UpdateSettingsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof updateSettings>>, TError,UpdateSettingsMutationVariables, TContext> => {
 
@@ -865,13 +1107,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type UpdateSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateSettings>>>
     export type UpdateSettingsMutationBody = BodyType<SettingsUpdate>
-    export type UpdateSettingsMutationError = ErrorType<unknown>
+    export type UpdateSettingsMutationError = ErrorType<UnauthorizedResponse>
     export type UpdateSettingsMutationVariables = {data: BodyType<SettingsUpdate>}
 
     /**
  * @summary Atualiza as configurações do usuário
  */
-export const useUpdateSettings = <TError = ErrorType<unknown>,
+export const useUpdateSettings = <TError = ErrorType<UnauthorizedResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSettings>>, TError,UpdateSettingsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof updateSettings>>,
@@ -922,7 +1164,7 @@ export const getGetPomodoroSessionsQueryKey = (params?: GetPomodoroSessionsParam
     }
 
 
-export const getGetPomodoroSessionsQueryOptions = <TData = Awaited<ReturnType<typeof getPomodoroSessions>>, TError = ErrorType<unknown>>(params?: GetPomodoroSessionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPomodoroSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetPomodoroSessionsQueryOptions = <TData = Awaited<ReturnType<typeof getPomodoroSessions>>, TError = ErrorType<UnauthorizedResponse>>(params?: GetPomodoroSessionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPomodoroSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -941,14 +1183,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetPomodoroSessionsQueryResult = NonNullable<Awaited<ReturnType<typeof getPomodoroSessions>>>
-export type GetPomodoroSessionsQueryError = ErrorType<unknown>
+export type GetPomodoroSessionsQueryError = ErrorType<UnauthorizedResponse>
 
 
 /**
  * @summary Lista sessões de foco
  */
 
-export function useGetPomodoroSessions<TData = Awaited<ReturnType<typeof getPomodoroSessions>>, TError = ErrorType<unknown>>(
+export function useGetPomodoroSessions<TData = Awaited<ReturnType<typeof getPomodoroSessions>>, TError = ErrorType<UnauthorizedResponse>>(
  params?: GetPomodoroSessionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPomodoroSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -1008,7 +1250,7 @@ return customFetch<PomodoroSession>(getCreatePomodoroSessionUrl(),
 
 export const getCreatePomodoroSessionMutationKey = () => ['createPomodoroSession'] as const;
 
-export const getCreatePomodoroSessionMutationOptions = <TError = ErrorType<unknown>,
+export const getCreatePomodoroSessionMutationOptions = <TError = ErrorType<UnauthorizedResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPomodoroSession>>, TError,CreatePomodoroSessionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof createPomodoroSession>>, TError,CreatePomodoroSessionMutationVariables, TContext> => {
 
@@ -1037,13 +1279,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type CreatePomodoroSessionMutationResult = NonNullable<Awaited<ReturnType<typeof createPomodoroSession>>>
     export type CreatePomodoroSessionMutationBody = BodyType<PomodoroInput>
-    export type CreatePomodoroSessionMutationError = ErrorType<unknown>
+    export type CreatePomodoroSessionMutationError = ErrorType<UnauthorizedResponse>
     export type CreatePomodoroSessionMutationVariables = {data: BodyType<PomodoroInput>}
 
     /**
  * @summary Registra um ciclo de foco concluído pelo app
  */
-export const useCreatePomodoroSession = <TError = ErrorType<unknown>,
+export const useCreatePomodoroSession = <TError = ErrorType<UnauthorizedResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPomodoroSession>>, TError,CreatePomodoroSessionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createPomodoroSession>>,

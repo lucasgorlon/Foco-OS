@@ -6,9 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './appPasswordInput';
 export * from './appSettings';
 export * from './appSettingsTheme';
 export * from './areaFocus';
+export * from './authenticatedSession';
 export * from './automationDailySummary';
 export * from './automationWeeklySummary';
 export * from './cardMoveInput';
@@ -32,6 +34,7 @@ export * from './metricsSummary';
 export * from './pomodoroInput';
 export * from './pomodoroSession';
 export * from './quadrantCount';
+export * from './serviceUnavailableResponse';
 export * from './settingsUpdate';
 export * from './settingsUpdateTheme';
 export * from './taskCard';

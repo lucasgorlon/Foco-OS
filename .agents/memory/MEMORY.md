@@ -1,0 +1,1 @@
+- [Foco OS app sessions](foco-os-app-sessions.md) — use stateless signed browser sessions; keep Make API-key routes independent.

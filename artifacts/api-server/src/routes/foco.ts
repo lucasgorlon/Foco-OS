@@ -40,8 +40,13 @@ import {
 } from "../lib/foco-data";
 import { AppError } from "../lib/errors";
 import { getConnectionStatus } from "../lib/trello";
+import { requireAppSession } from "../middlewares/require-app-session";
 
 const router: IRouter = Router();
+router.use(
+  ["/connection", "/cards", "/dashboard", "/metrics", "/settings", "/pomodoro"],
+  requireAppSession,
+);
 
 const queryString = (value: unknown): string | undefined =>
   typeof value === "string" ? value : undefined;

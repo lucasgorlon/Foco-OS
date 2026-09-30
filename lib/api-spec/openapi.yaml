@@ -10,17 +10,72 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Acesso protegido ao Foco OS
   - name: foco
     description: Dados do painel Foco OS
   - name: automations
     description: Endpoints seguros para automações externas
+security:
+  - AppSession: []
 paths:
+  /auth/session:
+    get:
+      operationId: getAppSession
+      tags: [auth]
+      summary: Verifica a sessão do Foco OS
+      security: []
+      responses:
+        "200":
+          description: Sessão válida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthenticatedSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /auth/login:
+    post:
+      operationId: loginWithPassword
+      tags: [auth]
+      summary: Inicia uma sessão com a senha do aplicativo
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppPasswordInput"
+      responses:
+        "200":
+          description: Sessão iniciada por sete dias
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthenticatedSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /auth/logout:
+    post:
+      operationId: logoutAppSession
+      tags: [auth]
+      summary: Encerra a sessão atual
+      responses:
+        "204":
+          description: Sessão encerrada
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check interno
       description: Retorna status básico do servidor.
+      security: []
       responses:
         "200":
           description: Servidor ativo
@@ -56,6 +111,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ConnectionStatus"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /cards:
     get:
       operationId: getCards
@@ -85,6 +142,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/TaskCard"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /cards/{cardId}/move:
     post:
       operationId: moveCard
@@ -111,6 +170,8 @@ paths:
                 $ref: "#/components/schemas/TaskCard"
         "404":
           description: Card não encontrado
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /dashboard/daily:
     get:
       operationId: getDailySummary
@@ -123,6 +184,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DailySummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /dashboard/weekly:
     get:
       operationId: getWeeklySummary
@@ -142,6 +205,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/WeeklySummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /metrics:
     get:
       operationId: getMetrics
@@ -171,6 +236,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MetricsSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /settings:
     get:
       operationId: getSettings
@@ -183,6 +250,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AppSettings"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
     patch:
       operationId: updateSettings
       tags: [foco]
@@ -200,6 +269,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AppSettings"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /pomodoro/sessions:
     get:
       operationId: getPomodoroSessions
@@ -225,6 +296,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/PomodoroSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
     post:
       operationId: createPomodoroSession
       tags: [foco]
@@ -242,6 +315,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PomodoroSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /resumo-diario:
     get:
       operationId: getAutomationDailySummary
@@ -302,14 +377,38 @@ components:
       type: apiKey
       in: header
       name: x-api-key
+    AppSession:
+      type: apiKey
+      in: cookie
+      name: foco_os_session
   responses:
     Unauthorized:
-      description: Chave de API ausente ou inválida
+      description: Sessão ou chave de API ausente ou inválida
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ServiceUnavailable:
+      description: Autenticação não configurada no servidor
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
   schemas:
+    AppPasswordInput:
+      type: object
+      properties:
+        password:
+          type: string
+          minLength: 1
+          maxLength: 1024
+      required: [password]
+    AuthenticatedSession:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+      required: [authenticated]
     HealthStatus:
       type: object
       properties:

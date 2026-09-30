@@ -5,6 +5,18 @@
  * API do Foco OS e endpoints protegidos para automações.
  * OpenAPI spec version: 0.1.0
  */
+export interface AppPasswordInput {
+  /**
+     * @minLength 1
+     * @maxLength 1024
+     */
+  password: string;
+}
+
+export interface AuthenticatedSession {
+  authenticated: boolean;
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -251,9 +263,14 @@ export interface AutomationWeeklySummary {
 }
 
 /**
- * Chave de API ausente ou inválida
+ * Sessão ou chave de API ausente ou inválida
  */
 export type UnauthorizedResponse = ErrorResponse;
+
+/**
+ * Autenticação não configurada no servidor
+ */
+export type ServiceUnavailableResponse = ErrorResponse;
 
 export type GetCardsParams = {
 includeCompleted?: boolean;

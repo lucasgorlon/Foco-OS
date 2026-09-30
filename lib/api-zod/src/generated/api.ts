@@ -9,6 +9,36 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Verifica a sessão do Foco OS
+ */
+export const GetAppSessionResponse = zod.object({
+  "authenticated": zod.boolean()
+})
+
+
+/**
+ * @summary Inicia uma sessão com a senha do aplicativo
+ */
+export const loginWithPasswordBodyPasswordMax = 1024;
+
+
+
+export const LoginWithPasswordBody = zod.object({
+  "password": zod.string().min(1).max(loginWithPasswordBodyPasswordMax)
+})
+
+export const LoginWithPasswordResponse = zod.object({
+  "authenticated": zod.boolean()
+})
+
+
+/**
+ * @summary Encerra a sessão atual
+ */
+export const LogoutAppSessionResponse = zod.void()
+
+
+/**
  * Retorna status básico do servidor.
  * @summary Health check interno
  */

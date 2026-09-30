@@ -8,6 +8,6 @@
 import type { ErrorResponse } from './errorResponse';
 
 /**
- * Sessão ou chave de API ausente ou inválida
+ * Autenticação não configurada no servidor
  */
-export type UnauthorizedResponse = ErrorResponse;
+export type ServiceUnavailableResponse = ErrorResponse;
